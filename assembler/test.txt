@@ -1,0 +1,14 @@
+* Equates section
+start   EQU $400
+data    EQU $1000
+
+* Program section
+    ORG start ; Do the thing
+
+    MOVE.B #data, D1 ; Move data into D1
+
+* Data section
+    ORG data ; Do the other thing
+test    DC.B $10, $A0
+
+    END start
