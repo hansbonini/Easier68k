@@ -13,6 +13,7 @@ def strip_comments(line):
     
     return line[0:comment_index].replace('\r', '').replace('\n', '')
 
+
 def get_label(line):
     assert type(line) is str
 
@@ -26,11 +27,12 @@ def get_label(line):
     
     return label
 
+
 def strip_label(line):
     assert type(line) is str
 
-    if line[0] == ' ': # Simply just trim the line, since it isn't a label
-        return line.strip()
+    if line[0] == ' ':
+        return line.strip()  # Simply just trim the line, since it isn't a label
     
     # This is a label, we have to trim the label specifically
     to_return = ''
@@ -48,5 +50,3 @@ def strip_label(line):
             to_return += c
         
     return to_return
-
-
