@@ -31,6 +31,9 @@ def get_label(line):
 def strip_label(line):
     assert type(line) is str
 
+    if not line:
+        return line  # This line is empty, just return it straight up
+
     if line[0] == ' ':
         return line.strip()  # Simply just trim the line, since it isn't a label
     
@@ -49,4 +52,55 @@ def strip_label(line):
         if started_line:
             to_return += c
         
+    return to_return
+
+
+def find_labels(file):
+    found_labels = {}
+
+    line_number = 0
+
+    for raw_line in file:
+        line_number += 1
+        line = strip_comments(raw_line)
+        if not line.strip():
+            continue  # Skip empty lines
+
+        label = get_label(line)
+
+        if label is not None:
+            if label in found_labels.keys():
+                raise Exception("Label {} is already defined".format(label))
+            else:
+                found_labels[label] = (line_number, strip_label(line))
+
+    return found_labels
+
+
+def get_opword(line):
+    opword = ""
+    for c in line:
+        if c == ' ':
+            return opword  # Found the end of the opword, return it
+
+        opword += c
+
+
+def strip_opword(line):
+    to_return = ""
+
+    past_opword = False
+    past_spaces = False
+
+    for c in line:
+        if c == ' ' and not past_opword:
+            past_opword = True
+            continue
+
+        if c != ' ' and past_opword and not past_spaces:
+            past_spaces = True
+
+        if past_spaces:
+            to_return += c
+
     return to_return

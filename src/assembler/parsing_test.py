@@ -1,34 +1,31 @@
-from src.assembler.parsing_util import strip_comments, get_label, strip_label
+from src.assembler.parsing_util import strip_comments, get_label, strip_label, find_labels, get_opword, strip_opword
+from src.assembler.parser import register_callback, parse_line, set_labels
 
 
-def find_labels(file):
-    found_labels = {}
-
-    line_number = 0
-
-    for raw_line in file:
-        line_number += 1
-        line = strip_comments(raw_line)
-        if not line.strip():
-            continue  # Skip empty lines
-
-        label = get_label(line)
-
-        if label is not None:
-            if label in found_labels.keys():
-                raise Exception("Label {} is already defined".format(label))
-            else:
-                found_labels[label] = (line_number, strip_label(line))
-    
-    return labels
+def process_org(args):
+    print("ORGing at {}".format(args))
 
 
-f = open("Easier68k/src/assembler/test_parse.txt", "r")
+# -------- BEGIN TEST CODE --------
+f = open("test_parse.txt", "r")
 
 labels = find_labels(f)
 
 print("Found labels:")
-for l in labels.items():
-    print(" - {} at line {}".format(l[0], l[1]))
+for label in labels.items():
+    print(" - {} at line {}".format(label[0], label[1]))
+
+f.seek(0)
+
+register_callback("ORG", process_org)
+set_labels(labels)
+
+for raw_line in f:
+    l = strip_label(strip_comments(raw_line))
+    if not l.strip():
+        continue  # Skip empty lines
+
+    # print(l)
+    parse_line(l)
 
 f.close()
