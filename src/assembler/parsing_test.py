@@ -1,6 +1,6 @@
 import io
 import os
-from utilities import strip_comments, get_label, strip_label
+from parsing_util import strip_comments, get_label, strip_label
 
 def find_labels(file):
     labels = {}
@@ -22,7 +22,7 @@ def find_labels(file):
     
     return labels
 
-f = open("Easier68k/assembler/test.txt", "r")
+f = open("Easier68k/src/assembler/test_parse.txt", "r")
 
 line_number = 0
 labels = find_labels(f)
