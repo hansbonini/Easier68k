@@ -16,7 +16,6 @@ valid_opcodes = [
 
 MAX_MEMORY_LOCATION = 16777216  # 2^24
 
-
 def for_line_stripped_comments(full_text: str):
     for line_index, line in enumerate(full_text.splitlines()):
         stripped = strip_comments(line)
