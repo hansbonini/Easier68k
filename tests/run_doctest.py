@@ -16,6 +16,7 @@ test_modules = [
     'easier68k.assembler.assembler',
     'easier68k.core.opcodes.move',
     'easier68k.core.opcodes.dc',
+    'easier68k.core.opcodes.lea',
     'easier68k.core.opcodes.simhalt',
     'easier68k.core.models.list_file',
     'easier68k.core.util.opcode_util'

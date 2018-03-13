@@ -97,7 +97,7 @@ def parse_assembly_parameter(addr: str) -> AssemblyParameter:
 
         return AssemblyParameter(EAMode.ARIPD, int(addr[3]))
 
-    return AssemblyParameter()
+    return None
 
 
 def parse_literal(literal: str) -> int:
