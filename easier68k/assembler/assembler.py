@@ -113,7 +113,7 @@ def parse(text: str) -> (ListFile, list):
     for label, opcode, contents in for_line_opcode_parse(text):
         # Equates have already been processed, skip them
         # (this idea could be expanded for more preprocessor directives)
-        if opcode == 'EQU':
+        if opcode == 'EQU' or opcode == 'END':
             continue
 
         # Replace all substitutions in the current line with their corresponding values
@@ -162,6 +162,12 @@ def parse(text: str) -> (ListFile, list):
             new_memory_location = parse_literal(contents)
             assert 0 <= new_memory_location < MAX_MEMORY_LOCATION, 'ORG address must be between 0 and 2^24!'
             current_memory_location = new_memory_location
+            continue
+
+        if opcode == 'END':  # This will set our end memory location, it's a special case
+            start_location = parse_literal(contents)
+            assert 0 <= start_location < MAX_MEMORY_LOCATION, 'ORG address must be between 0 and 2^24!'
+            to_return.set_starting_execution_address(start_location)
             continue
 
         # TODO: Possibly use a cached version?
