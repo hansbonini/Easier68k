@@ -11,7 +11,9 @@ from ..core.models.list_file import ListFile
 from ..core.opcodes import *
 
 valid_opcodes = [
-    'easier68k.core.opcodes.move'
+    'easier68k.core.opcodes.move',
+    'easier68k.core.opcodes.dc',
+    'easier68k.core.opcodes.simhalt'
 ]
 
 MAX_MEMORY_LOCATION = 16777216  # 2^24
