@@ -5,7 +5,18 @@ import re
 import binascii
 from ..core import opcodes
 from ..core.models.list_file import ListFile
+
 from ..core.util.find_module import find_opcode_cls
+# This *is* actually a necessary import due to using "reflection" style code further down
+# noinspection PyUnresolvedReferences
+from ..core.opcodes import *
+
+valid_opcodes = [
+    'easier68k.core.opcodes.move',
+    'easier68k.core.opcodes.dc',
+    'easier68k.core.opcodes.lea',
+    'easier68k.core.opcodes.simhalt'
+]
 
 MAX_MEMORY_LOCATION = 16777216  # 2^24
 
@@ -67,7 +78,20 @@ def replace_equates(contents: str, equates: dict) -> str:
 
 def replace_label_addresses(contents: str, label_addresses: dict) -> str:
     for label in label_addresses.items():
-        contents = contents.replace(label[0], '$' + hex(label[1])[2:])
+        contents = contents.replace(label[0], '(${0:08x}).L'.format(label[1]))
+
+    return contents
+
+
+def replace_labels_with_temps(contents: str, labels: dict) -> str:
+    """
+    Replaces all labels that we don't know the location for with temporary addresses ($00000000)
+    :param contents: The string to replace labels
+    :param labels: The labels
+    :return: The string with labels replaced
+    """
+    for label in labels.items():
+        contents = contents.replace(label[0], '($00000000).L')
 
     return contents
 
@@ -94,6 +118,8 @@ def parse(text: str) -> (ListFile, list):
 
         # Replace all substitutions in the current line with their corresponding values
         contents = replace_equates(contents, equates)
+        # Replace all labels with temporary addresses because we don't know their actual values yet
+        contents = replace_labels_with_temps(contents, labels)
 
         if opcode == 'ORG':  # This will shift our current memory location, it's a special case
             new_memory_location = parse_literal(contents)
