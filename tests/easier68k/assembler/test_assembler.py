@@ -10,6 +10,6 @@ def test_basic_test_input():
         with open('easier68k/assembler/temp_output_file.txt', 'w') as out:  # Temporary output file for testing results
             pretty_json = json.loads(assembled.to_json())
             out.write(json.dumps(pretty_json, indent=4))
-            out.write('\r\n----- ISSUES -----')
+            out.write('\r\n----- ISSUES -----\r\n')
             for issue in issues:
                 out.write('{}: {}\r\n'.format(issue[1], issue[0]))
