@@ -112,6 +112,7 @@ def parse(text: str) -> (ListFile, list):
 
     for label, opcode, contents in for_line_opcode_parse(text):
         # Equates have already been processed, skip them
+        # ENDs aren't processed until phase 3, skip them for now
         # (this idea could be expanded for more preprocessor directives)
         if opcode == 'EQU' or opcode == 'END':
             continue
@@ -122,8 +123,14 @@ def parse(text: str) -> (ListFile, list):
         contents = replace_labels_with_temps(contents, labels)
 
         if opcode == 'ORG':  # This will shift our current memory location, it's a special case
-            new_memory_location = parse_literal(contents)
-            assert 0 <= new_memory_location < MAX_MEMORY_LOCATION, 'ORG address must be between 0 and 2^24!'
+            try:
+                new_memory_location = parse_literal(contents)
+            except:
+                issues.append(('Error parsing ORG value', 'ERROR'))
+                continue
+            if not (0 <= new_memory_location < MAX_MEMORY_LOCATION):
+                issues.append(('ORG address must be between 0 and 2^24!', 'ERROR'))
+                continue
             current_memory_location = new_memory_location
             continue
 
@@ -159,17 +166,20 @@ def parse(text: str) -> (ListFile, list):
         contents = replace_label_addresses(contents, label_addresses)
 
         if opcode == 'ORG':  # This will shift our current memory location, it's a special case
-            new_memory_location = parse_literal(contents)
-            # Don't need to assert, we already did that earlier
+            try:
+                new_memory_location = parse_literal(contents)
+            except:
+                # Don't need to print assertion, we already did that earlier
+                continue
+            if not (0 <= new_memory_location < MAX_MEMORY_LOCATION):
+                continue
             current_memory_location = new_memory_location
             continue
 
         if opcode == 'END':  # This will set our end memory location, it's a special case
             start_location = parse_literal(contents)
-            if not (0 <= start_location < MAX_MEMORY_LOCATION):
-                issues.append(('END address must be between 0 and 2^24', 'ERROR'))
+            if not (0 <= new_memory_location < MAX_MEMORY_LOCATION):
                 continue
-
             to_return.set_starting_execution_address(start_location)
             continue
 
