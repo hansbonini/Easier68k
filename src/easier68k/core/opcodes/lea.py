@@ -53,7 +53,7 @@ class Lea(Opcode):
 
     def __init__(self, src: EAMode, dest: EAMode):
         # Can't take data register, address register, or ARI with modifications
-        assert src.mode not in [EAMode.DRD, EAMode.ARD, EAMode.ARIPD, EAMode.ARIPI]
+        assert src.mode not in [EAMode.DRD, EAMode.ARD, EAMode.ARIPD, EAMode.ARIPI, EAMode.IMM]
         self.src = src
 
         # Check that the destination is of a proper type
@@ -70,14 +70,9 @@ class Lea(Opcode):
         tr += '{0:03b}'.format(self.dest.data)
         tr += '111'
         tr += ea_mode_bin.parse_from_ea_mode_modefirst(self.src)  # Source second
-        # Append immediates/absolute addresses after the command
-        if self.src.mode is EAMode.IMM:
-            if len(hex(self.src.data)[2:]) > 4:
-                tr += opcode_util.ea_to_binary_post_op(self.src, 'L')
-            else:
-                tr += opcode_util.ea_to_binary_post_op(self.src, 'W')
-        else: # Size doesn't matter if it's not an immediate so we'll just give it W
-            tr += opcode_util.ea_to_binary_post_op(self.src, 'W')
+        # Append after the command
+        # Size doesn't matter if it's not an immediate so we'll just give it W
+        tr += opcode_util.ea_to_binary_post_op(self.src, 'L' if self.src.mode == EAMode.ALA else 'W')
 
         to_return = bytearray.fromhex(hex(int(tr, 2))[2:])  # Convert to a bytearray
         return to_return
@@ -88,7 +83,7 @@ class Lea(Opcode):
         :param simulator: The simulator to execute the command on
         :return: Nothing
         """
-        pass
+        self.dest.set_value(simulator, self.src.data, get_number_of_bytes('L'))
 
     def __str__(self):
         # Makes this a bit easier to read in doctest output
