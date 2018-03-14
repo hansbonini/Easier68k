@@ -160,13 +160,16 @@ def parse(text: str) -> (ListFile, list):
 
         if opcode == 'ORG':  # This will shift our current memory location, it's a special case
             new_memory_location = parse_literal(contents)
-            assert 0 <= new_memory_location < MAX_MEMORY_LOCATION, 'ORG address must be between 0 and 2^24!'
+            # Don't need to assert, we already did that earlier
             current_memory_location = new_memory_location
             continue
 
         if opcode == 'END':  # This will set our end memory location, it's a special case
             start_location = parse_literal(contents)
-            assert 0 <= start_location < MAX_MEMORY_LOCATION, 'ORG address must be between 0 and 2^24!'
+            if not (0 <= start_location < MAX_MEMORY_LOCATION):
+                issues.append(('END address must be between 0 and 2^24', 'ERROR'))
+                continue
+
             to_return.set_starting_execution_address(start_location)
             continue
 
@@ -176,8 +179,6 @@ def parse(text: str) -> (ListFile, list):
         if op_class is None:
             issues.append(('Opcode {} is not known: skipping and continuing'.format(opcode), 'ERROR'))
             continue
-
-        # Get the actual constructed opcode
 
         # check that the input is valid the opcode at the module level
         is_valid, issues = op_class.is_valid(opcode, contents)
