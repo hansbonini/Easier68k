@@ -147,14 +147,20 @@ class M68K:
         Starts the automatic execution
         :return:
         """
-        pass
 
-    def step_clock(self):
+        if not self.clock_auto_cycle:
+            # run a single instruction
+            self.step_instruction()
+        else:
+            while self.clock_auto_cycle:
+                self.step_instruction()
+
+    def halt(self):
         """
-        Increments the clock by a single cycle
+        Halts the auto simulation execution
         :return:
         """
-        pass
+        self.clock_auto_cycle = False
 
     def step_instruction(self):
         """
@@ -176,12 +182,10 @@ class M68K:
             # 10 comes from 2 bytes for the op and max 2 longs which are each 4 bytes
             # note: this currently has the edge case that it will fail unintelligibly
             # if encountered at the end of memory
-            op = op_class.from_binary(self)
+            pc_val = self.get_program_counter_value()
+            op = op_class.disassemble_instruction(self.memory.memory[pc_val:pc_val+10])
             if op != None:
                 op.execute(self)
-
-
-
 
     def reload_execution(self):
         """
@@ -189,7 +193,15 @@ class M68K:
         up to the current program counter location
         :return:
         """
-        pass
+        # get the current PC
+        current_pc = self.get_program_counter_value()
+
+        # reset the PC value
+        # todo, need to store the starting location
+
+        # set the starting PC value
+
+        # run until hits that PC value
 
     def get_cycles(self):
         """
