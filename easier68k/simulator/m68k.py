@@ -131,6 +131,15 @@ class M68K:
         """
         self.set_address_register_value(Register.ProgramCounter, new_value)
 
+    def increment_program_counter(self, inc: int):
+        """
+        Increments the program counter by the given value
+        :param inc:
+        :return:
+        """
+        self.set_program_counter_value(
+            self.get_program_counter_value() + inc)
+
     def get_condition_status_code(self, code: ConditionStatusCode) -> bool:
         """
         Gets the status of a code from the Condition Code Register
