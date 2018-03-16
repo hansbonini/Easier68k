@@ -50,32 +50,32 @@ class DC(Opcode):
         return opcode_util.command_matches(command, 'DC')
 
     @classmethod
-    def get_word_length(cls, command: str, parameters: str) -> (int, list):
+    def get_word_length(cls, command: str, parameters: str) -> int:
         """
         Gets the final length of a command in memory in words
         NOTE: for DC.B, this will round UP to make it a full word, even though it won't use the full memory
 
-        >>> DC.get_word_length('DC.B', '$0A, $0B')[0]
+        >>> DC.get_word_length('DC.B', '$0A, $0B')
         1
 
-        >>> DC.get_word_length('DC.W', '$0A, $0B')[0]
+        >>> DC.get_word_length('DC.W', '$0A, $0B')
         2
 
-        >>> DC.get_word_length('DC.L', '$0A, $0B')[0]
+        >>> DC.get_word_length('DC.L', '$0A, $0B')
         4
 
-        >>> DC.get_word_length('DC.B', '\\'Hai!\\'')[0]
+        >>> DC.get_word_length('DC.B', '\\'Hai!\\'')
         2
 
-        >>> DC.get_word_length('DC.W', '\\'Hai!\\'')[0]
+        >>> DC.get_word_length('DC.W', '\\'Hai!\\'')
         2
 
-        >>> DC.get_word_length('DC.L', '\\'Hai!\\'')[0]
+        >>> DC.get_word_length('DC.L', '\\'Hai!\\'')
         4
 
         :param command: The command itself (e.g. 'MOVE.B', 'LEA', etc.)
         :param parameters:  The parameters after the command (such as the source and destination of a move)
-        :return: The length of the command in memory (in words) and a list of issues/warnings encountered during assembly
+        :return: The length of the command in memory (in words)
         """
         valid, issues = cls.is_valid(command, parameters)
         assert valid, 'Invalid command'
@@ -149,7 +149,7 @@ class DC(Opcode):
         if size == OpSize.LONG and length % 4 != 0:
             length = length + (length % 4)
 
-        return length, issues
+        return length
 
     @classmethod
     def is_valid(cls, command: str, parameters: str) -> (bool, list):
@@ -253,31 +253,31 @@ class DC(Opcode):
         """
         Parses a command string into an instance of the opcode class
 
-        >>> test0 = DC.from_str("DC.B", "$0A, $0B")[0]
+        >>> test0 = DC.from_str("DC.B", "$0A, $0B")
         >>> test0.size
         <OpSize.BYTE: 1>
         >>> test0.values
         [10, 11]
 
-        >>> test1 = DC.from_str("DC.B", "\\'Hai!\\'")[0]
+        >>> test1 = DC.from_str("DC.B", "\\'Hai!\\'")
         >>> test1.size
         <OpSize.BYTE: 1>
         >>> test1.values
         [72, 97, 105, 33]
 
-        >>> test2 = DC.from_str("DC.L", "\\'Hai\\'")[0]
+        >>> test2 = DC.from_str("DC.L", "\\'Hai\\'")
         >>> test2.size
         <OpSize.LONG: 4>
         >>> test2.values
         [72, 97, 105, 0]
 
-        >>> test3 = DC.from_str("DC.L", "\\'Hai\\', $AB")[0]
+        >>> test3 = DC.from_str("DC.L", "\\'Hai\\', $AB")
         >>> test3.size
         <OpSize.LONG: 4>
         >>> test3.values
         [72, 97, 105, 0, 0, 0, 0, 171]
 
-        >>> test4 = DC.from_str("DC.W", "\\'Hai\\', $AB")[0]
+        >>> test4 = DC.from_str("DC.W", "\\'Hai\\', $AB")
         >>> test4.size
         <OpSize.WORD: 2>
         >>> test4.values
@@ -398,4 +398,4 @@ class DC(Opcode):
                 for i in range(0, len(hexed), 2):
                     params.append(int(hexed[i:i + 2], 16))
 
-        return cls(params, size), issues
+        return cls(params, size)

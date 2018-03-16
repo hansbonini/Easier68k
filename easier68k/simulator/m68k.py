@@ -182,7 +182,7 @@ class M68K:
             op, words_read = op_class.from_binary(self.memory.memory[PC:PC+10])
             if op != None:
                 op.execute(self)
-                self.set_program_counter_value(PC + words_read)
+                self.set_program_counter_value(PC + words_read*2)
 
 
 

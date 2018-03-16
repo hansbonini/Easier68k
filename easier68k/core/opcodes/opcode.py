@@ -34,12 +34,12 @@ class Opcode:
         pass
 
     @classmethod
-    def get_word_length(cls, command: str, parameters: str) -> (int, list):
+    def get_word_length(cls, command: str, parameters: str) -> int:
         """
         Gets what the end length of this command will be in memory
         :param command: The text of the command itself (e.g. "LEA", "MOVE.B", etc.)
         :param parameters: The parameters after the command
-        :return: The length of the bytes in memory in words, as well as a list of warnings or errors encountered
+        :return: The length of the bytes in memory in words
         """
         pass
 

@@ -40,22 +40,22 @@ class Simhalt(Opcode):
         return opcode_util.command_matches(command, 'SIMHALT')
 
     @classmethod
-    def get_word_length(cls, command: str, parameters: str) -> (int, list):
+    def get_word_length(cls, command: str, parameters: str) -> int:
         """
-        >>> Simhalt.get_word_length('SIMHALT', '')[0]
+        >>> Simhalt.get_word_length('SIMHALT', '')
         2
 
         Gets what the end length of this command will be in memory
         :param command: The text of the command itself (e.g. "LEA", "MOVE.B", etc.)
         :param parameters: The parameters after the command
-        :return: The length of the bytes in memory in words, as well as a list of warnings or errors encountered
+        :return: The length of the bytes in memory in words
         """
         valid, issues = Simhalt.is_valid(command, parameters)
         if not valid:
-            return 0, issues
+            return 0
         # We can forego asserts in here because we've now confirmed this is valid assembly code
 
-        return 2, issues
+        return 2
 
     @classmethod
     def is_valid(cls, command: str, parameters: str) -> (bool, list):
@@ -108,21 +108,15 @@ class Simhalt(Opcode):
         """
         Parses a SIMHALT command from memory.
 
-        >>> str(Simhalt.from_str('SIMHALT', '')[0])
+        >>> str(Simhalt.from_str('SIMHALT', ''))
         'SIMHALT command'
-
-        >>> Simhalt.from_str('SIMHALT.B', '')[1]
-        [('Command invalid', 'ERROR')]
-
-        >>> Simhalt.from_str('SIMHALT', 'D0')[1]
-        [('SIMHALT takes no parameters', 'ERROR')]
 
         :param command: The command itself (e.g. 'MOVE.B', 'LEA', etc.)
         :param parameters: The parameters after the command (such as the source and destination of a move)
         """
         valid, issues = Simhalt.is_valid(command, parameters)
         if not valid:
-            return None, issues
+            return None
         # We can forego asserts in here because we've now confirmed this is valid assembly code
 
-        return cls(), issues
+        return cls()

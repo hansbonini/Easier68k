@@ -61,22 +61,22 @@ class Lea(Opcode):
         return opcode_util.command_matches(command, 'LEA')
 
     @classmethod
-    def get_word_length(cls, command: str, parameters: str) -> (int, list):
+    def get_word_length(cls, command: str, parameters: str) -> int:
         """
         >>> Lea.get_word_length('LEA', '(A0), A1')
-        (1, [])
+        1
 
         >>> Lea.get_word_length('LEA', '#$90, A0')
-        (2, [])
+        2
 
         >>> Lea.get_word_length('LEA', '#$ABCDE, A0')
-        (3, [])
+        3
 
         >>> Lea.get_word_length('LEA', '($AAAA).L, A6')
-        (3, [])
+        3
 
         >>> Lea.get_word_length('LEA', '($AAAA).W, A5')
-        (2, [])
+        2
 
         Gets what the end length of this command will be in memory
         :param command: The text of the command itself (e.g. "LEA", "MOVE.B", etc.)
@@ -85,7 +85,7 @@ class Lea(Opcode):
         """
         valid, issues = cls.is_valid(command, parameters)
         if not valid:
-            return 0, issues
+            return 0
         # We can forego asserts in here because we've now confirmed this is valid assembly code
 
         # Split the parameters into EA modes
@@ -118,7 +118,7 @@ class Lea(Opcode):
         if dest.mode == EAMode.ALA:  # Appends a long, so 2 words
             length += 2
 
-        return length, issues
+        return length
 
     @classmethod
     def is_valid(cls, command: str, parameters: str) -> (bool, list):
@@ -186,21 +186,18 @@ class Lea(Opcode):
         """
         Parses a LEA command from memory.
 
-        >>> str(Lea.from_str('LEA', '(A0), A1')[0])
+        >>> str(Lea.from_str('LEA', '(A0), A1'))
         'LEA command: src EA Mode: EAMode.ARI, Data: 0, dest EA Mode: EAMode.ARD, Data: 1'
 
-        >>> str(Lea.from_str('LEA', '($0A).W, A2')[0])
+        >>> str(Lea.from_str('LEA', '($0A).W, A2'))
         'LEA command: src EA Mode: EAMode.AWA, Data: 10, dest EA Mode: EAMode.ARD, Data: 2'
-
-        >>> Lea.from_str('LEA', 'D3, A3')[1]
-        [('Invalid addressing mode', 'ERROR')]
 
         :param command: The command itself (e.g. 'MOVE.B', 'LEA', etc.)
         :param parameters: The parameters after the command (such as the source and destination of a move)
         """
         valid, issues = cls.is_valid(command, parameters)
         if not valid:
-            return None, issues
+            return None
         # We can forego asserts in here because we've now confirmed this is valid assembly code
 
         # Split the parameters into EA modes
@@ -208,4 +205,4 @@ class Lea(Opcode):
         src = parse_assembly_parameter(params[0].strip())
         dest = parse_assembly_parameter(params[1].strip())
 
-        return cls(src, dest), issues
+        return cls(src, dest)
