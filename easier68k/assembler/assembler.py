@@ -133,7 +133,6 @@ def parse(text: str) -> (ListFile, list):
 
         # TODO: Possibly cache this (and the module search) for Part 3 later so we don't have to redo introspection?
         op_class = find_opcode_cls(opcode)
-
         # We don't know this opcode, there's no module for it
         if op_class is None:
             issues.append(('Opcode {} is not known: skipping and continuing'.format(opcode), 'ERROR'))
