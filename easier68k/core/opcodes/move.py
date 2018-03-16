@@ -312,7 +312,7 @@ class Move(Opcode):
             return False, issues
 
     @classmethod
-    def disassemble_instruction(cls, data: bytearray) -> (str, int):
+    def disassemble_instruction(cls, data: bytearray) -> Opcode:
         """
         This has a non-move opcode
         >>> Move.disassemble_instruction(bytearray.fromhex('5E01'))
