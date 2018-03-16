@@ -2,8 +2,8 @@
 >>> str(Lea.from_str('LEA', '(A0), A1')[0])
 'LEA command: src EA Mode: EAMode.ARI, Data: 0, dest EA Mode: EAMode.ARD, Data: 1'
 
->>> str(Lea.from_str('LEA', '#$0A, A2')[0])
-'LEA command: src EA Mode: EAMode.IMM, Data: 10, dest EA Mode: EAMode.ARD, Data: 2'
+>>> str(Lea.from_str('LEA', '($0A).W, A2')[0])
+'LEA command: src EA Mode: EAMode.AWA, Data: 10, dest EA Mode: EAMode.ARD, Data: 2'
 
 >>> Lea.from_str('LEA', 'D3, A3')[1]
 [('Invalid addressing mode', 'ERROR')]
