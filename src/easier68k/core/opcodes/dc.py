@@ -2,6 +2,7 @@ from ...core.opcodes.opcode import Opcode
 from ...core.util import opcode_util
 from ...simulator.m68k import M68K
 from ..util.parsing import parse_literal
+from itertools import zip_longest
 import math
 
 
@@ -19,6 +20,7 @@ class_name = 'DC'
 
 class DC(Opcode):
     allowed_sizes = 'BWL'
+    QUOTE_DELIMETER = "'"
 
     def __init__(self, values: list, size='W'):
         assert size.upper() in DC.allowed_sizes
@@ -36,31 +38,31 @@ class DC(Opcode):
         >>> test0.size
         'B'
         >>> test0.values
-        ['$0A', '$0B']
+        [10, 11]
 
         >>> test1 = DC.from_str("DC.B", "\\'Hai!\\'")[0]
         >>> test1.size
         'B'
         >>> test1.values
-        ['$48', '$61', '$69', '$21']
+        [72, 97, 105, 33]
 
         >>> test2 = DC.from_str("DC.L", "\\'Hai\\'")[0]
         >>> test2.size
         'L'
         >>> test2.values
-        ['$48', '$61', '$69', '$00']
+        [72, 97, 105, 0]
 
         >>> test3 = DC.from_str("DC.L", "\\'Hai\\', $AB")[0]
         >>> test3.size
         'L'
         >>> test3.values
-        ['$48', '$61', '$69', '$00', '$00', '$00', '$00', '$AB']
+        [72, 97, 105, 0, 0, 0, 0, 171]
 
         >>> test4 = DC.from_str("DC.W", "\\'Hai\\', $AB")[0]
         >>> test4.size
         'W'
         >>> test4.values
-        ['$48', '$61', '$69', '$00', '$00', '$AB']
+        [72, 97, 105, 0, 0, 171]
 
         :param command: The command itself (e.g. 'MOVE.B', 'LEA', etc.)
         :param parameters: The parameters after the command (such as the source and destination of a move)
@@ -76,25 +78,27 @@ class DC(Opcode):
             size = parts[1].upper()
 
         params = []
-        quote_delim = None  # If None, we're not in a quote: if it has a value, we know what we're looking for to break the quote
+        in_quote = False
         current_param = ''
         is_string = False
 
-        for c in parameters:
-            if c == ',' and not quote_delim:  # End of this parameter (and not a comma in a quote)
+        lookahead_iter = zip_longest(parameters, parameters[1:])
+
+        for c, c_next in lookahead_iter:
+            if c == ',' and not in_quote:  # End of this parameter (and not a comma in a quote)
                 if current_param:
                     if is_string:
                         temp_params = []
                         for char in current_param:
-                            temp_params.append('$' + format(ord(char), "x"))
+                            temp_params.append(ord(char))
 
                         # Right pad the string with zeroes
                         if size == 'L':
-                            while len(temp_params) % 4 != 0:
-                                temp_params.append('$00')
+                            if len(temp_params) % 4 != 0:
+                                temp_params.extend(0 for _ in range(4 - (len(temp_params) % 4)))
                         if size == 'W':
-                            while len(temp_params) % 2 != 0:
-                                temp_params.append('$00')
+                            if len(temp_params) % 2 != 0:
+                                temp_params.append(0)
 
                         params.extend(temp_params)
                     else:
@@ -102,42 +106,40 @@ class DC(Opcode):
                         val = parse_literal(current_param.strip())
                         hexed = hex(val)[2:].upper()
                         if size == 'L':
-                            while len(hexed) % 8 != 0:
-                                hexed = '0' + hexed
+                            if len(hexed) % 8 != 0:
+                                hexed = ('0' * (8 - (len(hexed) % 8))) + hexed
 
                         if size == 'W':
-                            while len(hexed) % 4 != 0:
-                                hexed = '0' + hexed
+                            if len(hexed) % 4 != 0:
+                                hexed = ('0' * (4 - (len(hexed) % 4))) + hexed
 
                         if size == 'B':
-                            while len(hexed) % 2 != 0:
+                            if len(hexed) % 2 != 0:
                                 hexed = '0' + hexed
 
                         # Length is now for sure even
                         for i in range(0, len(hexed), 2):
-                            params.append('$' + hexed[i:i+2])
+                            params.append(int(hexed[i:i+2], 16))
 
-                is_string = False
-                quote_delim = None
+                in_quote = False
                 current_param = ''
+                is_string = False
                 continue
 
-            if quote_delim and c == quote_delim:  # Breaking out of the quote
-                quote_delim = None
-                continue
-
-            if c == '\'':
-                if not quote_delim:  # This is the start of a quote
-                    quote_delim = '\''
-                    current_param = ''
+            if c == DC.QUOTE_DELIMETER:
+                # This is the start or end of a quote (not an escaped apostrophe)
+                if not in_quote:
+                    in_quote = True
                     is_string = True
                     continue
+                else:
+                    if c_next == DC.QUOTE_DELIMETER:  # This is an escaped delimeter in a string literal
+                        current_param += DC.QUOTE_DELIMETER
+                        next(lookahead_iter)  # Skip the other delimeter so we don't double-process it
+                        continue
 
-            if c == '\"':
-                if not quote_delim:  # This is the start of a quote
-                    quote_delim = '\"'
-                    current_param = ''
-                    is_string = True
+                    # This is the end of a quote (not an escaped apostrophe)
+                    in_quote = False
                     continue
 
             current_param += c
@@ -145,16 +147,16 @@ class DC(Opcode):
         if current_param:
             if is_string:
                 temp_params = []
-                for c in current_param:
-                    temp_params.append('$' + format(ord(c), "x"))
+                for char in current_param:
+                    temp_params.append(ord(char))
 
                 # Right pad the string with zeroes
                 if size == 'L':
-                    while len(temp_params) % 4 != 0:
-                        temp_params.append('$00')
+                    if len(temp_params) % 4 != 0:
+                        temp_params.extend(0 for _ in range(4 - (len(temp_params) % 4)))
                 if size == 'W':
-                    while len(temp_params) % 2 != 0:
-                        temp_params.append('$00')
+                    if len(temp_params) % 2 != 0:
+                        temp_params.append(0)
 
                 params.extend(temp_params)
             else:
@@ -162,20 +164,20 @@ class DC(Opcode):
                 val = parse_literal(current_param.strip())
                 hexed = hex(val)[2:].upper()
                 if size == 'L':
-                    while len(hexed) % 8 != 0:
-                        hexed = '0' + hexed
+                    if len(hexed) % 8 != 0:
+                        hexed = ('0' * (8 - (len(hexed) % 8))) + hexed
 
                 if size == 'W':
-                    while len(hexed) % 4 != 0:
-                        hexed = '0' + hexed
+                    if len(hexed) % 4 != 0:
+                        hexed = ('0' * (4 - (len(hexed) % 4))) + hexed
 
                 if size == 'B':
-                    while len(hexed) % 2 != 0:
+                    if len(hexed) % 2 != 0:
                         hexed = '0' + hexed
 
                 # Length is now for sure even
                 for i in range(0, len(hexed), 2):
-                    params.append('$' + hexed[i:i+2])
+                    params.append(int(hexed[i:i + 2], 16))
 
         return DC(params, size), issues
 
@@ -188,7 +190,7 @@ class DC(Opcode):
         True
 
         >>> DC.is_valid('DC.B', '\\'Hello\\'\\' world!\\'')[0]
-        False
+        True
 
         >>> DC.is_valid('DC.W', '\\'Hello\\', \\' world!\\'')[0]
         True
@@ -215,50 +217,53 @@ class DC(Opcode):
         issues = []
         try:
             assert opcode_util.check_valid_command(command, 'DC', valid_sizes=DC.allowed_sizes), 'Command invalid'
-            # Can't just do a "split by comma" here because we could have commas inside of a string literal
+
             param_count = 0
-            quote_delim = None  # If None, we're not in a quote: if it has a value, we know what we're looking for to break the quote
+            in_quote = False
             current_param = ''
             is_string = False
 
-            for c in parameters:
-                if c == ',' and not quote_delim:  # End of this parameter (and not a comma in a quote)
+            lookahead_iter = zip_longest(parameters, parameters[1:])
+
+            for c, c_next in lookahead_iter:
+                if c == ',' and not in_quote:  # End of this parameter (and not a comma in a quote)
                     if current_param:
                         if not is_string:  # Try parsing this value for a literal (if it's a string it's almost certainly fine)
                             assert parse_literal(current_param.strip()) is not None, 'Error parsing literal'
                         param_count += 1
 
-                    is_string = False
-                    quote_delim = None
+                    in_quote = False
                     current_param = ''
+                    is_string = False
                     continue
 
-                if quote_delim and c == quote_delim:  # Breaking out of the quote
-                    quote_delim = None
-                    continue
-
-                if c == '\'':
-                    if not quote_delim:  # This is the start of a quote
-                        quote_delim = '\''
-                        assert not current_param.strip(), "Can't have two quotes in a row in one parameter"
-                        current_param = ''
+                if c == DC.QUOTE_DELIMETER:
+                    # This is the start or end of a quote (not an escaped apostrophe)
+                    if not in_quote:
+                        assert not current_param, 'Expected comma between two string literals'
+                        in_quote = True
                         is_string = True
                         continue
+                    else:
+                        if c_next == DC.QUOTE_DELIMETER:  # This is an escaped apostrophe in a string literal
+                            current_param += DC.QUOTE_DELIMETER
+                            next(lookahead_iter)  # Skip the other apostrophe so we don't double-process it
+                            continue
 
-                if c == '\"':
-                    if not quote_delim:  # This is the start of a quote
-                        quote_delim = '\"'
-                        assert not current_param.strip(), "Can't have two quotes in a row in one parameter"
-                        current_param = ''
-                        is_string = True
+                        # This is the end of a quote (not an escaped apostrophe)
+                        in_quote = False
                         continue
 
-                current_param += c
+                if c != ' ' or (c == ' ' and in_quote):  # Don't add spaces unless we're in a quote
+                    current_param += c
 
-            assert not quote_delim, 'Unclosed quotes'
+            assert not in_quote, 'Expected apostrophe to end quote, got end of line instead'
+
             if current_param:
-                if not is_string:  # Try parsing this value for a literal (if it's a string it's almost certainly fine)
+                if not is_string:
+                    # Make the value the right hex length
                     assert parse_literal(current_param.strip()) is not None, 'Error parsing literal'
+
                 param_count += 1
 
             assert param_count > 0, 'Must have at least one parameter'
@@ -307,13 +312,15 @@ class DC(Opcode):
         else:
             size = parts[1].upper()
 
-        length = 0.0
-        quote_delim = None  # If None, we're not in a quote: if it has a value, we know what we're looking for to break the quote
+        length = 0
+        in_quote = False
         current_param = ''
         is_string = False
 
-        for c in parameters:
-            if c == ',' and not quote_delim:  # End of this parameter (and not a comma in a quote)
+        lookahead_iter = zip_longest(parameters, parameters[1:])
+
+        for c, c_next in lookahead_iter:
+            if c == ',' and not in_quote:  # End of this parameter (and not a comma in a quote)
                 if current_param:
                     if is_string:
                         length += len(current_param) * 0.5
@@ -327,27 +334,25 @@ class DC(Opcode):
                         elif size == 'L':
                             length += 2
 
-                is_string = False
-                quote_delim = None
+                in_quote = False
                 current_param = ''
+                is_string = False
                 continue
 
-            if quote_delim and c == quote_delim:  # Breaking out of the quote
-                quote_delim = None
-                continue
-
-            if c == '\'':
-                if not quote_delim:  # This is the start of a quote
-                    quote_delim = '\''
-                    current_param = ''
+            if c == DC.QUOTE_DELIMETER:
+                # This is the start or end of a quote (not an escaped apostrophe)
+                if not in_quote:
+                    in_quote = True
                     is_string = True
                     continue
+                else:
+                    if c_next == DC.QUOTE_DELIMETER:  # This is an escaped apostrophe in a string literal
+                        current_param += DC.QUOTE_DELIMETER
+                        next(lookahead_iter)  # Skip the other apostrophe so we don't double-process it
+                        continue
 
-            if c == '\"':
-                if not quote_delim:  # This is the start of a quote
-                    quote_delim = '\"'
-                    current_param = ''
-                    is_string = True
+                    # This is the end of a quote (not an escaped apostrophe)
+                    in_quote = False
                     continue
 
             current_param += c
@@ -355,6 +360,8 @@ class DC(Opcode):
         if current_param:
             if is_string:
                 length += len(current_param) * 0.5
+                if len(current_param) % 2 != 0:
+                    length += 1
             else:
                 if size == 'B':
                     length += 0.5
@@ -376,7 +383,7 @@ class DC(Opcode):
         """
         tr = ''
         for val in self.values:
-            tr += '{0:08b}'.format(parse_literal(val))
+            tr += '{0:08b}'.format(val)
 
         return bytearray.fromhex(hex(int(tr, 2))[2:])  # Convert to a bytearray
 
