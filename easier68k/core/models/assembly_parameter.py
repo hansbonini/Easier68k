@@ -16,7 +16,7 @@ MAX_MEMORY_LOCATION = 16777216  # 2^24
 
 class AssemblyParameter:
 
-    def __init__(self, mode: EAMode, data: int):
+    def __init__(self, mode: EAMode, data: int, op_size: OpSize = OpSize.WORD):
         """
         Constructor
 
@@ -52,7 +52,7 @@ class AssemblyParameter:
         """
         return "EA Mode: {}, Data: {}".format(self.mode, self.data)
 
-    def get_value(self, simulator: M68K, length: int = 4) -> int:
+    def get_value(self, simulator: M68K) -> int:
         """
         Gets the value for this EAMode from the simulator
         :param simulator: reference to the 68k simulator
@@ -143,7 +143,7 @@ class AssemblyParameter:
         # if nothing was done by now, surely something must be wrong
         assert False, 'Invalid effective addressing mode!'
 
-    def set_value(self, simulator: M68K, value: int, length: int = 4):
+    def set_value(self, simulator: M68K, value: int):
         """
         Sets the value of a destination mode
         :param simulator: the reference to the simulator
