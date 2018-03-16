@@ -68,6 +68,39 @@ class Move(Opcode):
         # and set the value
         self.dest.set_value(simulator, src_val, val_length)
 
+        # increment the program counter by the length of the instruction (1 word)
+        to_increment = 2
+
+        if self.src.mode in [EAMode.Immediate]:
+            # add the length of the size of the operation, in words
+            if self.size is OpSize.BYTE:
+                to_increment += OpSize.WORD.value
+            else:
+                to_increment += self.size.value
+
+        # if followed by a long addr, add the length of the long
+        if self.src.mode in [EAMode.AbsoluteLongAddress]:
+            to_increment += OpSize.LONG.value
+
+        # same goes with a word
+        if self.src.mode in [EAMode.AbsoluteWordAddress]:
+            to_increment += OpSize.WORD.value
+
+        # repeat for the dest
+        if self.dest.mode in [EAMode.AbsoluteLongAddress]:
+            to_increment += OpSize.LONG.value
+
+        if self.dest.mode in [EAMode.AbsoluteWordAddress]:
+            to_increment += OpSize.WORD.value
+
+        # get the current program counter
+        pc_val = simulator.get_program_counter_value()
+
+        # increment it and set it back
+        pc_val += to_increment
+
+        simulator.set_program_counter_value(pc_val)
+
     def __str__(self):
         # Makes this a bit easier to read in doctest output
         return 'Move command: Size {}, src {}, dest {}'.format(self.size, self.src, self.dest)
