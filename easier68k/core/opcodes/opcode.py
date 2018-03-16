@@ -54,7 +54,7 @@ class Opcode:
         """
 
     @classmethod
-    def from_binary(cls, data: bytearray) -> (Opcode, int):
+    def disassemble_instruction(cls, data:bytearray) -> (str, int):
         """
         Parses some raw data into an instance of the opcode class
 
