@@ -173,15 +173,13 @@ class M68K:
                 print('Opcode {} is not known: skipping and continuing'.format(op_str))
                 continue
 
-            PC = self.get_program_counter_value()
-            
             # 10 comes from 2 bytes for the op and max 2 longs which are each 4 bytes
             # note: this currently has the edge case that it will fail unintelligibly
             # if encountered at the end of memory
-            op = op_class.from_binary(self.memory.memory[PC:PC+10])
+            op = op_class.from_binary(self)
             if op != None:
                 op.execute(self)
-                # self.set_program_counter_value(PC + words_read*2)
+
 
 
 

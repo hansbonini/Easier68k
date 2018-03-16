@@ -95,6 +95,7 @@ class Move(Opcode):
         # increment it and set it back
         pc_val += to_increment
 
+        # set the program counter value
         simulator.set_program_counter_value(pc_val)
 
     def __str__(self):
@@ -307,14 +308,14 @@ class Move(Opcode):
             return False, issues
 
     @classmethod
-    def from_binary(cls, data: bytearray) -> (str, int):
+    def disassemble_instruction(cls, data: bytearray) -> (str, int):
         """
         This has a non-move opcode
-        >>> Move.from_binary(bytearray.fromhex('5E01'))
+        >>> Move.disassemble_instruction(bytearray.fromhex('5E01'))
 
 
         MOVE.B D1,D7
-        >>> op = Move.from_binary(bytearray.fromhex('1E01'))
+        >>> op = Move.disassemble_instruction(bytearray.fromhex('1E01'))
 
         >>> str(op.src)
         'EA Mode: EAMode.DRD, Data: 1'
@@ -324,7 +325,7 @@ class Move(Opcode):
 
 
         MOVE.L (A4),(A7)
-        >>> op = Move.from_binary(bytearray.fromhex('2E94'))
+        >>> op = Move.disassemble_instruction(bytearray.fromhex('2E94'))
 
         >>> str(op.src)
         'EA Mode: EAMode.ARI, Data: 4'
@@ -333,7 +334,7 @@ class Move(Opcode):
         'EA Mode: EAMode.ARI, Data: 7'
 
         MOVE.W #$DEAF,(A2)+
-        >>> op = Move.from_binary(bytearray.fromhex('34FCDEAF'))
+        >>> op = Move.disassemble_instruction(bytearray.fromhex('34FCDEAF'))
 
         >>> str(op.src)
         'EA Mode: EAMode.IMM, Data: 57007'
@@ -342,7 +343,7 @@ class Move(Opcode):
         'EA Mode: EAMode.ARIPI, Data: 2'
 
         MOVE.L ($1000).W,($200000).L
-        >>> op = Move.from_binary(bytearray.fromhex('23F8100000200000'))
+        >>> op = Move.disassemble_instruction(bytearray.fromhex('23F8100000200000'))
 
         >>> str(op.src)
         'EA Mode: EAMode.AWA, Data: 4096'
