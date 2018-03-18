@@ -174,7 +174,7 @@ MAGIC:
     ORG    1024
 START:
     MOVE.W #$ABCD, ($00AAAAAA).L
-    SIMHALTe
+    SIMHALT
     END    START 
     '''
 
