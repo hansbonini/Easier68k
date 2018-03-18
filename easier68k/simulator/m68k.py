@@ -195,9 +195,6 @@ class M68K:
             op = op_class.disassemble_instruction(self.memory.memory[pc_val:pc_val+10])
             if op is not None:
                 op.execute(self)
-                print('executed {}'.format(op))
-                print('PC is ')
-                print(self.get_program_counter_value())
 
                 # done exeucting after doing an operation
                 return
