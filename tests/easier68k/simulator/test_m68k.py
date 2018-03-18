@@ -201,3 +201,33 @@ START:
     assert(m68k.memory.get(Memory.Word, 0x00aaaaaa) == bytearray.fromhex('abcd'))
     m68k.step_instruction()
     assert (m68k.get_program_counter_value() == 1036)
+
+def test_auto_execute():
+    m68k = M68K()
+
+    list_file = ListFile()
+
+    list_file.load_from_json("""
+    {
+        "data": {
+            "1024": "33fcabcd00aaaaaa",
+            "1032": "ffffffff",
+            "1036": "abcd"
+        },
+        "startingExecutionAddress": 1024,
+        "symbols": {
+            "magic": 1036
+        }
+    }
+        """)
+
+    m68k.load_list_file(list_file)
+
+    # run the auto execute
+    m68k.clock_auto_cycle = True
+    m68k.run()
+
+    # check that the program counter stopped in the right location
+    assert m68k.get_program_counter_value() == 1036
+
+
