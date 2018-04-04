@@ -82,7 +82,7 @@ class Add(Opcode):
 
         # get the value of src from the simulator
         src_val = self.src.get_value(simulator, val_length)
-        print(src_val)
+        
         # get the value of dest from the simulator
         dest_val = self.dest.get_value(simulator, val_length)
 
