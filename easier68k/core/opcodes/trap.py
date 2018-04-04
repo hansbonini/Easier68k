@@ -24,7 +24,7 @@ class Trap(Opcode):
         self.use_debug_input = False
         self.debug_input = 'debug input'
 
-    def assemble(self) -> bytearray:
+    def assemble(self) -> bytes:
         """
         Assembles this opcode into hex to be inserted
         into memory

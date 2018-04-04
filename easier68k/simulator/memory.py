@@ -43,7 +43,7 @@ class Memory:
         # all of the memory that is stored by the device
         # 16777216 = 2^24
         # it is the number of bytes easy68K uses.
-        self.memory = bytearray(16777216)
+        self.memory = bytes(16777216)
 
     def save_memory(self, file : typing.BinaryIO):
         """
@@ -58,7 +58,7 @@ class Memory:
         This includes programs
         NOTE: file must be opened as binary or this won't work
         """
-        self.memory = bytearray(file.read())
+        self.memory = bytes(file.read())
 
 
     def load_list_file(self, list_file: ListFile):
@@ -87,15 +87,14 @@ class Memory:
                 # set one byte at a time
                 self.set(1, location + i, values[i:i+1])
 
-
-    def get(self, size: int, location: int) -> bytearray:
+    def get(self, size: int, location: int) -> bytes:
         """
         gets the memory at the given location index of size
         """
         self.__validateLocation(size, location)
         return self.memory[location:location+size]
 
-    def set(self, size: int, location: int, value: bytearray):
+    def set(self, size: int, location: int, value: bytes):
         """
         sets the memory at the given location index of size
         """
