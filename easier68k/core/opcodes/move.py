@@ -36,22 +36,34 @@ class Move(Opcode):
 
         self.size = size
 
-    def assemble(self) -> bytearray:
+    def assemble(self) -> bytes:
         """
         Assembles this opcode into hex to be inserted into memory
         :return: The hex version of this opcode
         """
-        # Create a binary string to append to, which we'll convert to hex at the end
-        tr = '00'  # Opcode
-        tr += '{0:02b}'.format(MoveSize.from_op_size(self.size))  # Size bits
-        tr += ea_mode_bin.parse_from_ea_mode_regfirst(self.dest)  # Destination first
-        tr += ea_mode_bin.parse_from_ea_mode_modefirst(self.src)  # Source second
-        # Append immediates/absolute addresses after the command
-        tr += opcode_util.ea_to_binary_post_op(self.src, self.size)
-        tr += opcode_util.ea_to_binary_post_op(self.dest, self.size)
+        # 00 <size> <dest reg> <dest mode> <src mode> <src reg>
 
-        to_return = bytearray.fromhex(hex(int(tr, 2))[2:])  # Convert to a bytearray
-        return to_return
+        ret_opcode = 0
+        # can ignore the zero MSB
+        # ret_opcode = 00 << 13
+
+        # add the size
+        ret_opcode |= MoveSize.from_op_size(self.size) << 11
+
+        # add the destination reg and dest mode
+        ret_opcode |= ea_mode_bin.parse_from_ea_mode_regfirst(self.dest) << 5
+
+        # add the src mode and src reg
+        ret_opcode |= ea_mode_bin.parse_from_ea_mode_modefirst(self.dest)
+
+        # convert the opcode word to bytes
+        ret_bytes = ret_opcode.to_bytes(2, byteorder='big', signed=False)
+
+        # append the immediates / absolute addresses after the command opcode
+        ret_bytes.join(opcode_util.ea_to_binary_post_op(self.src, self.size))
+        ret_bytes.join(opcode_util.ea_to_binary_post_op(self.dest, self.size))
+
+        return ret_bytes
 
     def execute(self, simulator: M68K):
         """

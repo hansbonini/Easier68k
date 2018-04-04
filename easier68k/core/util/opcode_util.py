@@ -115,32 +115,32 @@ def check_valid_command(command: str, template: str, can_take_size=True,
     return True
 
 
-def ea_to_binary_post_op(ea: EAMode, size: OpSize) -> str:
+def ea_to_binary_post_op(ea: EAMode, size: OpSize) -> bytes:
     """
     Gets the binary (if any) of an EA Mode to append after the command itself. For example, if we were to do
     'MOVE.B #$42, D0', the immediate would need to be appended after the command: this returns the part that
     needs to be appended.
 
-    >>> ea_to_binary_post_op(parse_assembly_parameter('#$42'), OpSize.BYTE)
-    '0000000001000010'
+    >>> ea_to_binary_post_op(parse_assembly_parameter('#$42'), OpSize.BYTE).hex()
+    '0X0042'
 
-    >>> ea_to_binary_post_op(parse_assembly_parameter('D0'), OpSize.WORD)
+    >>> ea_to_binary_post_op(parse_assembly_parameter('D0'), OpSize.WORD).hex()
     ''
 
-    >>> ea_to_binary_post_op(parse_assembly_parameter('#$42'), OpSize.LONG)
-    '00000000000000000000000001000010'
+    >>> ea_to_binary_post_op(parse_assembly_parameter('#$42'), OpSize.LONG).hex()
+    '0X00000042'
 
-    >>> ea_to_binary_post_op(parse_assembly_parameter('($242).W'), OpSize.WORD)
-    '0000001001000010'
+    >>> ea_to_binary_post_op(parse_assembly_parameter('($242).W'), OpSize.WORD).hex()
+    '0X0242'
 
-    >>> ea_to_binary_post_op(parse_assembly_parameter('($242).L'), OpSize.LONG)
-    '00000000000000000000001001000010'
+    >>> ea_to_binary_post_op(parse_assembly_parameter('($242).L'), OpSize.LONG).hex()
+    '0X00000242'
 
-    >>> ea_to_binary_post_op(parse_assembly_parameter('#-1'), OpSize.BYTE)
-    '1111111111111111'
+    >>> ea_to_binary_post_op(parse_assembly_parameter('#-1'), OpSize.BYTE).hex().upper()
+    '0XFFFF'
 
-    >>> ea_to_binary_post_op(parse_assembly_parameter('#-113442343'), OpSize.LONG)
-    '11111001001111010000000111011001'
+    >>> ea_to_binary_post_op(parse_assembly_parameter('#-113442343'), OpSize.LONG).upper()
+    '0XF93D01D9'
 
     :param ea: The effective address that needs to be converted
     :param size: The size of the operation
@@ -158,12 +158,7 @@ def ea_to_binary_post_op(ea: EAMode, size: OpSize) -> str:
                 comp += 1
                 val = abs(comp)
 
-            bytes = val.to_bytes(4, byteorder='big', signed=False)
-
-            # convert the value to a bytearray of len 4
-            for byte in bytes:
-                str += bin(byte)[2:].zfill(8) # trim the first two characters '0b'
-            return str
+            return val.to_bytes(4, byteorder='big', signed=False)
         else:
             str = ''
 
@@ -175,17 +170,12 @@ def ea_to_binary_post_op(ea: EAMode, size: OpSize) -> str:
                 comp += 1
                 val = abs(comp)
 
-            bytes = val.to_bytes(2, byteorder='big', signed=False)
-
-            # convert the value to a bytearray of len 2
-            for byte in bytes:
-                str += bin(byte)[2:].zfill(8) # trim '0b'
-            return str
+            return val.to_bytes(2, byteorder='big', signed=False)
 
     if ea.mode == EAMode.AWA:
-        return '{0:016b}'.format(ea.data)
+        return ea.data.to_bytes(2, byteorder='big', signed=False)
     if ea.mode == EAMode.ALA:
-        return '{0:032b}'.format(ea.data)
+        return ea.data.to_bytes(4, byteorder='big', signed=False)
 
     return ''  # This EA doesn't have a necessary post-op
 
