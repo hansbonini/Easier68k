@@ -94,6 +94,8 @@ class MemoryValue:
         :param length: the length in bytes of the value
         :return:
         """
+
+
         pass
 
     def get_value_unsigned(self):
@@ -115,6 +117,13 @@ class MemoryValue:
     def get_value_bytes(self):
         """
         Get the byte array value
+        :return:
+        """
+        pass
+
+    def get_msb(self):
+        """
+        Get the most significant bit indicating that the value is negative
         :return:
         """
         pass
@@ -218,5 +227,3 @@ class MemoryValue:
         :return:
         """
         pass
-
-    
