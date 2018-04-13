@@ -20,6 +20,8 @@ class MemoryValue:
     """
     Representation of some value in memory
     """
+    unsigned_value = 0
+    length = OpSize.WORD
 
     def __new__(cls, *args, **kwargs):
         pass
@@ -50,6 +52,13 @@ class MemoryValue:
         """
         self.length = size
 
+    def get_size(self) -> OpSize:
+        """
+        Gets the length of this memory value as an OpSize
+        :return: the length in bytes of this value as defined by an OpSize
+        """
+        return self.length
+
     def set_value_signed_int(self, signed_int: int):
         """
         Sets the value of this MemoryValue from a signed int
@@ -70,8 +79,13 @@ class MemoryValue:
         :param unsigned_int:
         :return:
         """
-
         # assert that the value can fit within the possible range for the size
+        if self.length is OpSize.LONG:
+            assert (0 <= unsigned_int <= 0xFFFFFFFF), 'Value must fit in the range [0, 0xFFFFFFFF].'
+        if self.length is OpSize.WORD:
+            assert (0 <= unsigned_int <= 0xFFFF), 'Value must fit in the range [0, 0xFFFF]'
+        if self.length is OpSize.BYTE:
+            assert (0 <= unsigned_int <= 0xFF), 'Value must fit in the range [0, 0xFF]'
 
         self.unsigned_value = unsigned_int
 
