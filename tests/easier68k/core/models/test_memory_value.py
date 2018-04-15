@@ -203,3 +203,14 @@ def test_get_value_signed():
     val = MemoryValue(OpSize.BYTE)
     val.set_value_unsigned_int(0x8F)
     assert (val.get_value_signed() == -113)
+
+def test_set_value_signed():
+    """
+    Tests for set_value_signed
+    :return:
+    """
+
+    val = MemoryValue(OpSize.BYTE)
+    val.set_value_signed_int(-113)
+    assert (val.get_value_signed() == -113)
+    assert (val.get_value_unsigned() == 0x8F)

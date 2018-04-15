@@ -62,11 +62,18 @@ class MemoryValue:
         """
 
         # assert that the value can fit within the possible range for the size
+        if self.length is OpSize.LONG:
+            assert (-128 <= signed_int <= 127), 'Value must fit in the range [-128, 127].'
+        if self.length is OpSize.WORD:
+            assert (-32768 <= signed_int <= 32767), 'Value must fit in the range [-32768, 32767]'
+        if self.length is OpSize.BYTE:
+            assert (-2147483648 <= signed_int <= 2147483647), 'Value must fit in the range [-2147483648, 2147483647]'
 
         # if the value is negative, take the 2s comp for the length
-
-        # if the value is positive and MSB not set, set the value
-        pass
+        if signed_int < 0:
+            self.unsigned_value = self.__twos_complement(abs(signed_int), self.length)
+        else:
+            self.unsigned_value = signed_int
 
     def set_value_unsigned_int(self, unsigned_int: int):
         """
