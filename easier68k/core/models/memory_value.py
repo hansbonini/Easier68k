@@ -135,7 +135,18 @@ class MemoryValue:
         Get the most significant bit indicating that the value is negative
         :return:
         """
-        pass
+
+        # default mask is one byte
+        mask = 0x80
+        if self.length is OpSize.WORD:
+            mask = 0x8000
+        elif self.length is OpSize.LONG:
+            mask = 0x80000000
+
+        # determine if the unsigned value MSB is set to 1
+        # by masking only the MSB and checking that the result
+        # has some value set
+        return self.unsigned_value & mask > 0
 
     def __eq__(self, other):
         """

@@ -157,3 +157,39 @@ def test_memory_value_str():
     val.set_value_unsigned_int(0xABCD1234)
 
     assert (str(val) == 'MemoryValue 0xabcd1234')
+
+def test_memory_value_get_msb():
+    """
+    Tests for get_msb
+    :return:
+    """
+
+    val = MemoryValue(OpSize.BYTE)
+    val.set_value_unsigned_int(0x01)
+    assert (val.get_msb() is False)
+
+    val.set_value_unsigned_int(0x80)
+    assert (val.get_msb() is True)
+
+    val.set_value_unsigned_int(0xFF)
+    assert (val.get_msb() is True)
+
+    val = MemoryValue(OpSize.WORD)
+    val.set_value_unsigned_int(0x0100)
+    assert (val.get_msb() is False)
+
+    val.set_value_unsigned_int(0x8000)
+    assert (val.get_msb() is True)
+
+    val.set_value_unsigned_int(0xFF00)
+    assert (val.get_msb() is True)
+
+    val = MemoryValue(OpSize.LONG)
+    val.set_value_unsigned_int(0x01000000)
+    assert (val.get_msb() is False)
+
+    val.set_value_unsigned_int(0x80000000)
+    assert (val.get_msb() is True)
+
+    val.set_value_unsigned_int(0xFF000000)
+    assert (val.get_msb() is True)
