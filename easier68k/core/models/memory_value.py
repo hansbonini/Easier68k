@@ -104,8 +104,13 @@ class MemoryValue:
         :return:
         """
 
+        mask = 0xFF
+        if length is OpSize.WORD:
+            mask = 0xFFFF
+        elif length is OpSize.LONG:
+            mask = 0xFFFFFFFF
 
-        pass
+        return (value ^ mask) + 1
 
     def get_value_unsigned(self):
         """
@@ -120,8 +125,11 @@ class MemoryValue:
         :return:
         """
         # if the msb is set
-        # take the 2s comp and *-1
-        pass
+        if self.get_msb():
+            ret_val = self.__twos_complement(self.unsigned_value, self.length)
+            return -1 * ret_val
+        # otherwise, is positive and don't have to convert
+        return self.unsigned_value
 
     def get_value_bytes(self):
         """

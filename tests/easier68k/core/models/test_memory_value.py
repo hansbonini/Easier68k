@@ -193,3 +193,13 @@ def test_memory_value_get_msb():
 
     val.set_value_unsigned_int(0xFF000000)
     assert (val.get_msb() is True)
+
+def test_get_value_signed():
+    """
+    Tests for get_value_signed
+    :return:
+    """
+
+    val = MemoryValue(OpSize.BYTE)
+    val.set_value_unsigned_int(0x8F)
+    assert (val.get_value_signed() == -113)
