@@ -1,6 +1,9 @@
 """
 Tests for core/models/memory_value
 which represent some value in memory with a length and a value
+
+Test just this file with:
+pytest -v tests/easier68k/core/models/test_memory_value.py
 """
 
 import pytest
@@ -57,7 +60,7 @@ def test_set_value_unsigned():
     val.set_value_unsigned_int(0xFFF)
     assert (val.unsigned_value == 0xFFF)
     val.set_value_unsigned_int(0xFFFFFFFF)
-    assert (val.unsigned_value == 0xFFFFFFF)
+    assert (val.unsigned_value == 0xFFFFFFFF)
 
     # try setting values that are out of bounds, they should all throw AssertException
 
@@ -108,3 +111,49 @@ def test_set_value_unsigned():
     # value that is too big for word
     with pytest.raises(AssertionError):
         val.set_value_unsigned_int(0xFFFFFFFF + 1)
+
+def test_set_memory_value_bytes():
+    """
+    Tests for __bytes__
+    :return:
+    """
+
+    val = MemoryValue(OpSize.BYTE)
+    val.set_value_unsigned_int(100)
+
+    x = bytes(val)
+    assert (int.from_bytes(x, byteorder='big', signed=False) == 100)
+
+    val = MemoryValue(OpSize.WORD)
+    val.set_value_unsigned_int(100)
+
+    x = bytes(val)
+    assert (int.from_bytes(x, byteorder='big', signed=False) == 100)
+
+    val = MemoryValue(OpSize.LONG)
+    val.set_value_unsigned_int(100)
+
+    x = bytes(val)
+    assert (int.from_bytes(x, byteorder='big', signed=False) == 100)
+
+
+def test_memory_value_str():
+    """
+    Tests for __str__ to ensure that it produces the correct output
+    :return:
+    """
+
+    val = MemoryValue(OpSize.BYTE)
+    val.set_value_unsigned_int(0xAB)
+
+    assert (str(val) == 'MemoryValue 0xab')
+
+    val = MemoryValue(OpSize.WORD)
+    val.set_value_unsigned_int(0xABCD)
+
+    assert (str(val) == 'MemoryValue 0xabcd')
+
+    val = MemoryValue(OpSize.LONG)
+    val.set_value_unsigned_int(0xABCD1234)
+
+    assert (str(val) == 'MemoryValue 0xabcd1234')

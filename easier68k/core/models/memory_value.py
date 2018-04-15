@@ -20,11 +20,6 @@ class MemoryValue:
     """
     Representation of some value in memory
     """
-    unsigned_value = 0
-    length = OpSize.WORD
-
-    def __new__(cls, *args, **kwargs):
-        pass
 
     def __init__(self, len: OpSize = OpSize.WORD):
         """
@@ -233,11 +228,11 @@ class MemoryValue:
         to str, show the hex representation
         :return:
         """
-        return 'MemoryValue'
+        return 'MemoryValue {0}'.format(hex(self.unsigned_value))
 
     def __bytes__(self):
         """
         Get the bytes representation of this
         :return:
         """
-        pass
+        return self.unsigned_value.to_bytes(self.length.get_number_of_bytes(), byteorder='big', signed=False)
