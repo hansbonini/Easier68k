@@ -149,11 +149,17 @@ def ea_to_binary_post_op(ea: EAMode, size: OpSize) -> MemoryValue:
     if ea.mode == EAMode.IMM:
         if size == OpSize.LONG:
             n = MemoryValue(OpSize.LONG)
-            n.set_value_signed_int(ea.data)
+            if ea.data < 0:
+                n.set_value_signed_int(ea.data)
+            else:
+                n.set_value_unsigned_int(ea.data)
             return n
         else:
             n = MemoryValue(OpSize.WORD)
-            n.set_value_signed_int(ea.data)
+            if ea.data < 0:
+                n.set_value_signed_int(ea.data)
+            else:
+                n.set_value_unsigned_int(ea.data)
             return n
 
     if ea.mode == EAMode.AWA:
