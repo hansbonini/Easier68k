@@ -97,6 +97,12 @@ class MemoryValue:
         :param bytes_value:
         :return:
         """
+        # get the value from bytes
+        val = int.from_bytes(bytes=bytes_value, byteorder='big', signed=False)
+        # then set it using the set value unsigned method to perform checking
+        self.set_value_unsigned_int(val)
+
+        # return self.unsigned_value.to_bytes(self.length.get_number_of_bytes(), byteorder='big', signed=False)
 
         # assert that the value can fit within the possible range for the size
 
@@ -111,6 +117,7 @@ class MemoryValue:
         :return:
         """
 
+        # flip all of the bits and set the value
         mask = 0xFF
         if length is OpSize.WORD:
             mask = 0xFFFF
@@ -143,7 +150,7 @@ class MemoryValue:
         Get the byte array value
         :return:
         """
-        pass
+        return self.__bytes__()
 
     def get_msb(self):
         """
@@ -275,3 +282,197 @@ class MemoryValue:
         :return:
         """
         return self.unsigned_value.to_bytes(self.length.get_number_of_bytes(), byteorder='big', signed=False)
+
+    def lsl(self, other):
+        """
+        logical shift left, allows for the msb to be set when shifted left
+        :param other:
+        :return:
+        """
+
+    def lsr(self, other):
+        """
+        logical shift right, the msb will always be 0
+        :param other:
+        :return:
+        """
+
+    def __lshift__(self, other):
+        """
+        Arithmetic left shift operator, sign of the result will be preserved
+        :param other: an int or MemoryValue representing how much to shift the value of this by
+        :return:
+        """
+
+    def __rshift__(self, other):
+        """
+        Arithmetic right shift operator, sign of the result will be preserved
+        :param other: an int or MemoryValue representing how much to shift the value of this by
+        :return:
+        """
+
+    def __xor__(self, other):
+        """
+        XOR operator
+        :param other:
+        :return:
+        """
+        if isinstance(other, MemoryValue):
+            # need to xor the bytes, and not with the signed value
+            val = self.unsigned_value ^ other.unsigned_value
+            n = MemoryValue(self.length)
+            n.set_value_unsigned_int(val)
+            return n
+        elif isinstance(other, int):
+            # can do a lazy xor by using a signed value
+            val = self.get_value_signed() ^ other
+            n = MemoryValue(self.length)
+            n.set_value_unsigned_int(val)
+            return n
+        else:
+            return NotImplemented
+
+    def __invert__(self):
+        """
+        Not operator
+        :return:
+        """
+        # flip all of the bits and set the value
+        mask = 0xFF
+        if self.length is OpSize.WORD:
+            mask = 0xFFFF
+        elif self.length is OpSize.LONG:
+            mask = 0xFFFFFFFF
+        # xor w/ the mask to invert the value
+
+        n = MemoryValue(self.length)
+        n.set_value_unsigned_int(self.unsigned_value ^ mask)
+
+        return n
+
+    def __or__(self, other):
+        """
+        bitwise or
+        :param other:
+        :reeturn:
+        """
+        if isinstance(other, MemoryValue):
+            # need to xor the bytes, and not with the signed value
+            val = self.unsigned_value | other.unsigned_value
+            n = MemoryValue(self.length)
+            n.set_value_unsigned_int(val)
+            return n
+        elif isinstance(other, int):
+            # can do a lazy xor by using a signed value
+            val = self.get_value_signed() | other
+            n = MemoryValue(self.length)
+            n.set_value_unsigned_int(val)
+            return n
+        else:
+            return NotImplemented
+
+    def __and__(self, other):
+        """
+        bitwise and
+        :param other:
+        :return:
+        """
+        if isinstance(other, MemoryValue):
+            # need to xor the bytes, and not with the signed value
+            val = self.unsigned_value & other.unsigned_value
+            n = MemoryValue(self.length)
+            n.set_value_unsigned_int(val)
+            return n
+        elif isinstance(other, int):
+            # can do a lazy xor by using a signed value
+            val = self.get_value_signed() & other
+            n = MemoryValue(self.length)
+            n.set_value_unsigned_int(val)
+            return n
+        else:
+            return NotImplemented
+
+    def __floordiv__(self, other):
+        """
+        Floor div
+        :param other:
+        :return:
+        """
+        if isinstance(other, MemoryValue):
+            # need to xor the bytes, and not with the signed value
+            val = self.get_value_signed() // other.get_value_signed()
+            n = MemoryValue(self.length)
+            n.set_value_unsigned_int(val)
+            return n
+        elif isinstance(other, int):
+            # can do a lazy xor by using a signed value
+            val = self.get_value_signed() // other
+            n = MemoryValue(self.length)
+            n.set_value_unsigned_int(val)
+            return n
+        else:
+            return NotImplemented
+
+    def __mul__(self, other):
+        """
+        Multiply
+        :param other:
+        :return:
+        """
+        if isinstance(other, MemoryValue):
+            # need to xor the bytes, and not with the signed value
+            val = self.get_value_signed() * other.get_value_signed()
+            n = MemoryValue(self.length)
+            n.set_value_unsigned_int(val)
+            return n
+        elif isinstance(other, int):
+            # can do a lazy xor by using a signed value
+            val = self.get_value_signed() * other
+            n = MemoryValue(self.length)
+            n.set_value_unsigned_int(val)
+            return n
+        else:
+            return NotImplemented
+
+    def __mod__(self, other):
+        """
+        Mod
+        :param other:
+        :return:
+        """
+        if isinstance(other, MemoryValue):
+            # need to xor the bytes, and not with the signed value
+            val = self.get_value_signed() % other.get_value_signed()
+            n = MemoryValue(self.length)
+            n.set_value_unsigned_int(val)
+            return n
+        elif isinstance(other, int):
+            # can do a lazy xor by using a signed value
+            val = self.get_value_signed() % other
+            n = MemoryValue(self.length)
+            n.set_value_unsigned_int(val)
+            return n
+        else:
+            return NotImplemented
+
+    def __pow__(self, power, modulo=None):
+        """
+        Power
+        :param power:
+        :param modulo:
+        :return:
+        """
+        if isinstance(power, MemoryValue):
+            # need to xor the bytes, and not with the signed value
+            val = pow(self.get_value_signed(), power.get_value_signed())
+            n = MemoryValue(self.length)
+            n.set_value_unsigned_int(val)
+            return n
+        elif isinstance(power, int):
+            # can do a lazy xor by using a signed value
+            val = pow(self.get_value_signed(), power)
+            n = MemoryValue(self.length)
+            n.set_value_unsigned_int(val)
+            return n
+        else:
+            return NotImplemented

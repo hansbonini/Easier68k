@@ -10,6 +10,7 @@ import pytest
 
 from easier68k.core.models.memory_value import MemoryValue
 from easier68k.core.enum.op_size import OpSize
+import pprint
 
 def test_memory_value_cstr_and_eq():
     """
@@ -275,7 +276,7 @@ def test_comparisons():
     # true
     assert (a <= b)
     assert (a >= b)
-    assert (a == b) 
+    assert (a == b)
 
     # false
     assert (not (a > b))
@@ -285,7 +286,7 @@ def test_comparisons():
 
 def test_comparisons_to_ints():
     """
-    Tests for comparisons
+    Tests for comparisons with int values
     :return:
     """
 
@@ -348,3 +349,94 @@ def test_comparisons_to_ints():
     assert (not (a > b))
     assert (not (a < b))
     assert (not (a != b))
+
+def test_math_operations():
+    """
+    Test the math operations with memory value
+    including add, subtract, lshift, rshift, mul,
+    bitwise OR, XOR, AND
+    :return:
+    """
+
+    a = MemoryValue(OpSize.WORD)
+    b = MemoryValue(OpSize.WORD)
+
+    a.set_value_signed_int(123)
+    b.set_value_signed_int(34)
+
+    c = 123
+    d = 34
+
+    assert (a ^ b == c ^ d)
+
+    assert (a | b == c | d)
+
+    assert (a & b == c & d)
+
+    assert (a // b == c // d)
+
+    assert (a * b == c * d)
+
+    assert (a % b == c % d)
+
+    a.set_value_signed_int(3)
+    b.set_value_signed_int(4)
+
+    c = 3
+    d = 4
+
+    assert (a ^ b == c ^ d)
+
+
+def test_math_operations_with_ints():
+    """
+    Test the math operations with memory value
+    including add, subtract, lshift, rshift, mul,
+    bitwise OR, XOR, AND
+    :return:
+    """
+
+    a = MemoryValue(OpSize.WORD)
+    b = 34
+
+    a.set_value_signed_int(123)
+
+    c = 123
+    d = 34
+
+    assert (a ^ b == c ^ d)
+
+    assert (a | b == c | d)
+
+    assert (a & b == c & d)
+
+    assert (a // b == c // d)
+
+    assert (a * b == c * d)
+
+    assert (a % b == c % d)
+
+    a.set_value_signed_int(3)
+    b = 4
+
+    c = 3
+    d = 4
+
+    assert (a ^ b == c ^ d)
+
+def test_memory_value_bytes():
+    """
+    tests for the bytes methods
+    :return:
+    """
+    a = MemoryValue(OpSize.WORD)
+    a.set_value_signed_int(-123)
+
+    b = MemoryValue(OpSize.WORD)
+    b.set_value_bytes(bytes(a))
+
+    assert (a == b)
+
+    b.set_value_bytes(a.get_value_bytes())
+
+    assert (a == b))
