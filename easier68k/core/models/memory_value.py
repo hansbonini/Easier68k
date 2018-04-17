@@ -140,12 +140,19 @@ class MemoryValue:
         # otherwise, is positive and don't have to convert
         return self.unsigned_value
 
-    def get_value_bytes(self):
+    def get_value_bytes(self) -> bytes:
         """
-        Get the byte array value
+        Get the bytes value
         :return:
         """
         return self.__bytes__()
+
+    def get_value_bytearray(self) -> bytearray:
+        """
+        Get the value as a bytearray
+        :return:
+        """
+        return bytearray(self.__bytes__())
 
     def get_msb(self):
         """

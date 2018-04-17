@@ -147,17 +147,17 @@ def test_memory_value_str():
     val = MemoryValue(OpSize.BYTE)
     val.set_value_unsigned_int(0xAB)
 
-    assert (str(val) == 'MemoryValue 0xab')
+    assert (str(val) == 'BYTE MemoryValue 0xab')
 
     val = MemoryValue(OpSize.WORD)
     val.set_value_unsigned_int(0xABCD)
 
-    assert (str(val) == 'MemoryValue 0xabcd')
+    assert (str(val) == 'WORD MemoryValue 0xabcd')
 
     val = MemoryValue(OpSize.LONG)
     val.set_value_unsigned_int(0xABCD1234)
 
-    assert (str(val) == 'MemoryValue 0xabcd1234')
+    assert (str(val) == 'LONG MemoryValue 0xabcd1234')
 
 def test_memory_value_get_msb():
     """
@@ -438,5 +438,9 @@ def test_memory_value_bytes():
     assert (a == b)
 
     b.set_value_bytes(a.get_value_bytes())
+
+    assert (a == b)
+
+    b.set_value_bytes(a.get_value_bytearray())
 
     assert (a == b)

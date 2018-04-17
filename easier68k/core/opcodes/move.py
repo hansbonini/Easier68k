@@ -60,8 +60,8 @@ class Move(Opcode):
         ret_bytes = ret_opcode.to_bytes(2, byteorder='big', signed=False)
 
         # append the immediates / absolute addresses after the command opcode
-        ret_bytes.join(opcode_util.ea_to_binary_post_op(self.src, self.size))
-        ret_bytes.join(opcode_util.ea_to_binary_post_op(self.dest, self.size))
+        ret_bytes.join(opcode_util.ea_to_binary_post_op(self.src, self.size).get_value_bytearray())
+        ret_bytes.join(opcode_util.ea_to_binary_post_op(self.dest, self.size).get_value_bytearray())
 
         return ret_bytes
 
