@@ -439,4 +439,4 @@ def test_memory_value_bytes():
 
     b.set_value_bytes(a.get_value_bytes())
 
-    assert (a == b))
+    assert (a == b)

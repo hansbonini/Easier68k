@@ -62,11 +62,11 @@ class MemoryValue:
         """
 
         # assert that the value can fit within the possible range for the size
-        if self.length is OpSize.LONG:
+        if self.length is OpSize.BYTE:
             assert (-128 <= signed_int <= 127), 'Value must fit in the range [-128, 127].'
         if self.length is OpSize.WORD:
             assert (-32768 <= signed_int <= 32767), 'Value must fit in the range [-32768, 32767]'
-        if self.length is OpSize.BYTE:
+        if self.length is OpSize.LONG:
             assert (-2147483648 <= signed_int <= 2147483647), 'Value must fit in the range [-2147483648, 2147483647]'
 
         # if the value is negative, take the 2s comp for the length
@@ -97,16 +97,11 @@ class MemoryValue:
         :param bytes_value:
         :return:
         """
+        # optional, should we trim the input bytes to fit to the length of this
         # get the value from bytes
         val = int.from_bytes(bytes=bytes_value, byteorder='big', signed=False)
         # then set it using the set value unsigned method to perform checking
         self.set_value_unsigned_int(val)
-
-        # return self.unsigned_value.to_bytes(self.length.get_number_of_bytes(), byteorder='big', signed=False)
-
-        # assert that the value can fit within the possible range for the size
-
-        # set the unsigned value
 
     @staticmethod
     def __twos_complement(value: int, length: OpSize) -> int:
@@ -274,7 +269,7 @@ class MemoryValue:
         to str, show the hex representation
         :return:
         """
-        return 'MemoryValue {0}'.format(hex(self.unsigned_value))
+        return '{1} MemoryValue {0}'.format(hex(self.unsigned_value), self.length.name)
 
     def __bytes__(self):
         """
@@ -289,6 +284,8 @@ class MemoryValue:
         :param other:
         :return:
         """
+        # need to deal with this at a bit level, so doing it later
+        pass
 
     def lsr(self, other):
         """
@@ -296,6 +293,8 @@ class MemoryValue:
         :param other:
         :return:
         """
+        # need to deal with this at a bit level, so doing it later
+        pass
 
     def __lshift__(self, other):
         """
@@ -303,6 +302,8 @@ class MemoryValue:
         :param other: an int or MemoryValue representing how much to shift the value of this by
         :return:
         """
+        # need to deal with this at a bit level, so doing it later
+        pass
 
     def __rshift__(self, other):
         """
@@ -310,6 +311,8 @@ class MemoryValue:
         :param other: an int or MemoryValue representing how much to shift the value of this by
         :return:
         """
+        # need to deal with this at a bit level, so doing it later
+        pass
 
     def __xor__(self, other):
         """
