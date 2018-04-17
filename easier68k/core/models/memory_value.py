@@ -163,40 +163,39 @@ class MemoryValue:
         # has some value set
         return self.unsigned_value & mask > 0
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """
-        Equals, compares to see that the value and length are the same
+        Equals, compares to see that the value is the same
+        don't care about the len
         :param other:
         :return:
         """
-        assert isinstance(other, MemoryValue)
-        return self.unsigned_value == other.unsigned_value and self.length == other.length
+        if isinstance(other, MemoryValue):
+            return self.get_value_signed() == other.get_value_signed()
+        elif isinstance(other, int):
+            return self.get_value_signed() == other
+        else:
+            return NotImplemented
 
     def __add__(self, other):
         """
         Add, adds the value of two MemoryValues to each other
+        Also supports adding integer values to the result
         :param other:
         :return:
         """
-        assert isinstance(other, MemoryValue)
-
-        # convert to signed and add
-        # self.unsigned_value + other.unsigned_value
-
-        # return the result
-        pass
-
-    def __radd__(self, other):
-        """
-        Reverse add, adds the value of the values
-        :param other:
-        :return:
-        """
-        assert isinstance(other, MemoryValue)
-
-        # convert to signed and add
-        # return the result
-        pass
+        if isinstance(other, MemoryValue):
+            total_value = self.get_value_signed() + other.get_value_signed()
+            n = MemoryValue(self.length)
+            n.set_value_signed_int(total_value)
+            return n
+        elif isinstance(other, int):
+            total_value = self.get_value_signed() + other
+            n = MemoryValue(self.length)
+            n.set_value_signed_int(total_value)
+            return n
+        else:
+            return NotImplemented
 
     def __gt__(self, other):
         """
@@ -204,10 +203,12 @@ class MemoryValue:
         :param other:
         :return:
         """
-        assert isinstance(other, MemoryValue)
-
-        # convert to signed and compare
-        pass
+        if isinstance(other, MemoryValue):
+            return self.get_value_signed() > other.get_value_signed()
+        elif isinstance(other, int):
+            return self.get_value_signed() > other
+        else:
+            return NotImplemented
 
     def __lt__(self, other):
         """
@@ -215,10 +216,12 @@ class MemoryValue:
         :param other:
         :return:
         """
-        assert isinstance(other, MemoryValue)
-
-        # convert to signed and compare
-        pass
+        if isinstance(other, MemoryValue):
+            return self.get_value_signed() < other.get_value_signed()
+        elif isinstance(other, int):
+            return self.get_value_signed() < other
+        else:
+            return NotImplemented
 
     def __le__(self, other):
         """
@@ -226,9 +229,12 @@ class MemoryValue:
         :param other:
         :return:
         """
-        assert isinstance(other, MemoryValue)
-        # convert to signed and compare
-        pass
+        if isinstance(other, MemoryValue):
+            return self.get_value_signed() <= other.get_value_signed()
+        elif isinstance(other, int):
+            return self.get_value_signed() <= other
+        else:
+            return NotImplemented
 
     def __ne__(self, other):
         """
@@ -236,8 +242,12 @@ class MemoryValue:
         :param other:
         :return:
         """
-        assert isinstance(other, MemoryValue)
-        return self.unsigned_value != other.unsigned_value or self.length != other.length
+        if isinstance(other, MemoryValue):
+            return self.get_value_signed() != other.get_value_signed()
+        elif isinstance(other, int):
+            return self.get_value_signed() != other
+        else:
+            return NotImplemented
 
     def __ge__(self, other):
         """
@@ -245,9 +255,12 @@ class MemoryValue:
         :param other:
         :return:
         """
-        assert isinstance(other, MemoryValue)
-        # convert to signed and compare
-        pass
+        if isinstance(other, MemoryValue):
+            return self.get_value_signed() >= other.get_value_signed()
+        elif isinstance(other, int):
+            return self.get_value_signed() >= other
+        else:
+            return NotImplemented
 
     def __str__(self):
         """

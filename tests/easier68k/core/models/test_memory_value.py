@@ -214,3 +214,137 @@ def test_set_value_signed():
     val.set_value_signed_int(-113)
     assert (val.get_value_signed() == -113)
     assert (val.get_value_unsigned() == 0x8F)
+
+def test_comparisons():
+    """
+    Tests for comparisons
+    :return: 
+    """
+
+    a = MemoryValue(OpSize.WORD)
+    b = MemoryValue(OpSize.LONG)
+
+    a.set_value_signed_int(-123)
+    b.set_value_signed_int(100)
+
+    # true
+    assert (a <= b)
+    assert (a < b)
+    assert (a != b)
+
+    # false
+    assert (not (a > b))
+    assert (not (a >= b))
+    assert (not (a == b))
+
+    # test for two negative values
+
+    a.set_value_signed_int(-123)
+    b.set_value_signed_int(-12)
+
+    # true
+    assert (a <= b)
+    assert (a < b)
+    assert (a != b)
+
+    # false
+    assert (not (a > b))
+    assert (not (a >= b))
+    assert (not (a == b))
+
+    # two pos
+
+    a.set_value_signed_int(23)
+    b.set_value_signed_int(100)
+
+    # true
+    assert (a <= b)
+    assert (a < b)
+    assert (a != b)
+
+    # false
+    assert (not (a > b))
+    assert (not (a >= b))
+    assert (not (a == b))
+
+    # eq
+
+    a.set_value_signed_int(100)
+    b.set_value_signed_int(100)
+
+    # true
+    assert (a <= b)
+    assert (a >= b)
+    assert (a == b) 
+
+    # false
+    assert (not (a > b))
+    assert (not (a < b))
+    assert (not (a != b))
+
+
+def test_comparisons_to_ints():
+    """
+    Tests for comparisons
+    :return:
+    """
+
+    a = MemoryValue(OpSize.WORD)
+
+    a.set_value_signed_int(-123)
+    b = 100
+
+    # true
+    assert (a <= b)
+    assert (a < b)
+    assert (a != b)
+
+    # false
+    assert (not (a > b))
+    assert (not (a >= b))
+    assert (not (a == b))
+
+    # test for two negative values
+
+    a.set_value_signed_int(-123)
+    b = -12
+
+    # true
+    assert (a <= b)
+    assert (a < b)
+    assert (a != b)
+
+    # false
+    assert (not (a > b))
+    assert (not (a >= b))
+    assert (not (a == b))
+
+    # two pos
+
+    a.set_value_signed_int(23)
+    b = 100
+
+    # true
+    assert (a <= b)
+    assert (a < b)
+    assert (a != b)
+
+    # false
+    assert (not (a > b))
+    assert (not (a >= b))
+    assert (not (a == b))
+
+    # eq
+
+    a.set_value_signed_int(100)
+    b = 100
+
+    # true
+    assert (a <= b)
+    assert (a >= b)
+    assert (a == b)
+
+    # false
+    assert (not (a > b))
+    assert (not (a < b))
+    assert (not (a != b))
