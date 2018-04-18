@@ -9,6 +9,8 @@ from ..enum.ea_mode import EAMode
 from ..enum.register import Register
 from ...simulator.m68k import M68K
 from ..util.conversions import to_word
+from ..models.memory_value import MemoryValue
+from ..enum.op_size import OpSize
 
 # should try to make this a constant only defined once
 MAX_MEMORY_LOCATION = 16777216  # 2^24
@@ -52,17 +54,24 @@ class AssemblyParameter:
         """
         return "EA Mode: {}, Data: {}".format(self.mode, self.data)
 
-    def get_value(self, simulator: M68K, length: int = 4) -> int:
+    def get_value(self, simulator: M68K, length: OpSize = OpSize.WORD) -> MemoryValue:
         """
         Gets the value for this EAMode from the simulator
         :param simulator: reference to the 68k simulator
         :param length: the length in bytes associated with this operation, must be 1 2 or 4
         :return: the value associated with this assembly parameter
         """
-        assert length in [1, 2, 4], 'The length for this operation must be 1 2 or 4 bytes!'
+        # this check is probably useless now that the enum is being used
+        assert length in [OpSize.BYTE, OpSize.WORD, OpSize.LONG], 'The length for this operation must be 1 2 or 4 bytes!'
 
+        # immediates are assumed to be signed values
         if self.mode is EAMode.IMM:
-            return self.data
+            ret = MemoryValue(OpSize(length))
+            if self.data < 0:
+                ret.set_value_signed_int(self.data)
+            else:
+                ret.set_value_unsigned_int(self.data)
+            return ret
 
         if self.mode is EAMode.DRD:
             # convert the data into the register value
@@ -143,7 +152,7 @@ class AssemblyParameter:
         # if nothing was done by now, surely something must be wrong
         assert False, 'Invalid effective addressing mode!'
 
-    def set_value(self, simulator: M68K, value: int, length: int = 4):
+    def set_value(self, simulator: M68K, value: MemoryValue):
         """
         Sets the value of a destination mode
         :param simulator: the reference to the simulator
@@ -152,30 +161,14 @@ class AssemblyParameter:
         :return:
         """
 
-        assert length in [1, 2, 4], 'The value of length must be 1 2 or 4!'
-
         if self.mode is EAMode.Immediate:
             assert False, 'Cannot set the value of an immediate.'
 
         if self.mode is EAMode.DRD:
             # set the value for the data register
             assert 0 <= self.data <= 7
-
-            # if value is negative, then need to take 2s comp
-            if value < 0:
-                mask = 0xFF
-                if length is 2:
-                    mask = 0xFFFF
-                if length is 4:
-                    mask = 0xFFFFFFFF
-
-                value = value ^ mask
-                value += 1
-                value = abs(value)
-
-            assert 0 <= value <= 0xFFFFFFFF, 'The value must fit in a long word'
             data_register = Register(self.data)
-            simulator.set_register_value(data_register, value)
+            simulator.set_register(data_register, value)
 
         if self.mode is EAMode.AddressRegisterDirect:
             # set the value for the address register

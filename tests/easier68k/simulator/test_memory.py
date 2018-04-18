@@ -1,12 +1,17 @@
 import pytest
 
 from easier68k.simulator.memory import Memory, UnalignedMemoryAccessError, OutOfBoundsMemoryError
+from easier68k.core.models.memory_value import MemoryValue
+from easier68k.core.enum.op_size import OpSize
 
 def test_memory_set_get():
     memory = Memory()
 
     # should start all zeroed out
     # also test get returns appropriate sizes
+    a = MemoryValue(OpSize.LONG)
+    a.set_value_bytes(b'\x00\x00\x00\x00')
+
     assert memory.get(Memory.Long, 0x00) == b'\x00\x00\x00\x00'
     assert memory.get(Memory.Word, 0x100000) == b'\x00\x00'
     assert memory.get(Memory.Byte, 0xFFFFFF) == b'\x00'

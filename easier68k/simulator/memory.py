@@ -10,6 +10,7 @@ from ..core.enum.condition_status_code import ConditionStatusCode
 from ..core.enum.system_status_code import SystemStatusCode
 from ..core.models.list_file import ListFile
 import typing
+from ..core.models.memory_value import MemoryValue
 
 class UnalignedMemoryAccessError(Exception):
     pass
@@ -87,18 +88,20 @@ class Memory:
                 # set one byte at a time
                 self.set(1, location + i, values[i:i+1])
 
-    def get(self, size: int, location: int) -> bytearray:
+    def get(self, size: int, location: int) -> MemoryValue:
         """
         gets the memory at the given location index of size
         """
         self.__validateLocation(size, location)
-        return self.memory[location:location+size]
+        ret = MemoryValue(size)
+        ret.set_value_bytes(self.memory[location:location+size])
+        return ret
 
-    def set(self, size: int, location: int, value: bytearray):
+    def set(self, size: int, location: int, value: MemoryValue):
         """
         sets the memory at the given location index of size
         """
         self.__validateLocation(size, location)
-        if(len(value) != size):
+        if value.get_size().get_number_of_bytes() != size:
             raise AssignWrongMemorySizeError
-        self.memory[location:location+size] = value
+        self.memory[location:location+size] = value.get_value_bytes()
