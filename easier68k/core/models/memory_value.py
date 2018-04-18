@@ -291,8 +291,20 @@ class MemoryValue:
         :param other:
         :return:
         """
-        # need to deal with this at a bit level, so doing it later
-        pass
+        if isinstance(other, MemoryValue):
+            # shift the signed value to the left
+            # preserve the sign
+            val = self.get_value_unsigned() << other.get_value_signed()
+            n = MemoryValue(self.length)
+            n.set_value_unsigned_int(val)
+            return n
+        elif isinstance(other, int):
+            val = self.get_value_unsigned() << other
+            n = MemoryValue(self.length)
+            n.set_value_unsigned_int(val)
+            return n
+        else:
+            return NotImplemented
 
     def lsr(self, other):
         """
@@ -300,8 +312,20 @@ class MemoryValue:
         :param other:
         :return:
         """
-        # need to deal with this at a bit level, so doing it later
-        pass
+        if isinstance(other, MemoryValue):
+            # shift the signed value to the left
+            # preserve the sign
+            val = self.get_value_unsigned() >> other.get_value_signed()
+            n = MemoryValue(self.length)
+            n.set_value_unsigned_int(val)
+            return n
+        elif isinstance(other, int):
+            val = self.get_value_unsigned() >> other
+            n = MemoryValue(self.length)
+            n.set_value_unsigned_int(val)
+            return n
+        else:
+            return NotImplemented
 
     def __lshift__(self, other):
         """
@@ -309,8 +333,20 @@ class MemoryValue:
         :param other: an int or MemoryValue representing how much to shift the value of this by
         :return:
         """
-        # need to deal with this at a bit level, so doing it later
-        pass
+        if isinstance(other, MemoryValue):
+            # shift the signed value to the left
+            # preserve the sign
+            val = self.get_value_signed() << other.get_value_signed()
+            n = MemoryValue(self.length)
+            n.set_value_signed_int(val)
+            return n
+        elif isinstance(other, int):
+            val = self.get_value_signed() << other
+            n = MemoryValue(self.length)
+            n.set_value_signed_int(val)
+            return n
+        else:
+            return NotImplemented
 
     def __rshift__(self, other):
         """
@@ -319,7 +355,20 @@ class MemoryValue:
         :return:
         """
         # need to deal with this at a bit level, so doing it later
-        pass
+        if isinstance(other, MemoryValue):
+            # shift the signed value to the left
+            # preserve the sign
+            val = self.get_value_signed() >> other.get_value_signed()
+            n = MemoryValue(self.length)
+            n.set_value_signed_int(val)
+            return n
+        elif isinstance(other, int):
+            val = self.get_value_signed() >> other
+            n = MemoryValue(self.length)
+            n.set_value_signed_int(val)
+            return n
+        else:
+            return NotImplemented
 
     def __xor__(self, other):
         """
@@ -337,7 +386,7 @@ class MemoryValue:
             # can do a lazy xor by using a signed value
             val = self.get_value_signed() ^ other
             n = MemoryValue(self.length)
-            n.set_value_unsigned_int(val)
+            n.set_value_signed_int(val)
             return n
         else:
             return NotImplemented

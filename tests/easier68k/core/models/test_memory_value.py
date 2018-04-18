@@ -444,3 +444,38 @@ def test_memory_value_bytes():
     b.set_value_bytes(a.get_value_bytearray())
 
     assert (a == b)
+
+def test_memory_value_bit_shift():
+    """
+    Tests for the memory value << >> LSL and LSR
+    :return:
+    """
+
+    # << is a ASL
+
+    a = MemoryValue(OpSize.WORD)
+    a.set_value_signed_int(-123)
+
+    assert ((a << 4) == (-123 << 4))
+
+    a.set_value_signed_int(12)
+
+    assert ((a << 7) == (12 << 7))
+
+    a = MemoryValue(OpSize.WORD)
+    a.set_value_signed_int(-123)
+
+    assert ((a >> 4) == (-123 >> 4))
+
+    a.set_value_signed_int(12)
+
+    assert ((a >> 7) == (12 >> 7))
+
+    # just do test for lsl using positive numbers for now, since I don't think
+    # python has a lsl
+
+    a.set_value_signed_int(123)
+    assert (a.lsl(2) == 123 << 2)
+
+    a.set_value_signed_int(34)
+    assert (a.lsr(2) == 34 >> 2)
